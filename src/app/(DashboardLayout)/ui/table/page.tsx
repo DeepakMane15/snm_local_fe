@@ -1,167 +1,114 @@
-"use client";
-import React from "react";
-import { Badge, Dropdown, Progress } from "flowbite-react";
-import { HiOutlineDotsVertical } from "react-icons/hi";
-import { Icon } from "@iconify/react";
+"use client"
+import React, { useEffect, useState } from "react";
 import { Table } from "flowbite-react";
-
-import product1 from "/public/images/products/s1.jpg";
-import product2 from "/public/images/products/s2.jpg";
-import product3 from "/public/images/products/s3.jpg";
-import product4 from "/public/images/products/s4.jpg";
-import product5 from "/public/images/products/s5.jpg";
-import Image from "next/image";
 import NoDataFound from "@/app/components/common/no-data-found";
-import Filter from "@/app/components/common/filter";
+import { SadhsangatDataModel } from "@/app/constants/models/sadhsangatDataModel";
+import { SortByMaster, SortType, TableColumnModel } from "@/app/constants/AppEnum";
+import TablePagination from "@mui/material/TablePagination";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { TableSortLabel } from "@mui/material";
 
+interface TableProps {
+  data: SadhsangatDataModel[];
+  columns: TableColumnModel[];
+  totalPages: number;
+  page: number; // Current page number
+  rowsPerPage: number; // Rows per page
+  setPage: (page: number) => void; // Setter for page number
+  setRowsPerPage: (rows: number) => void; // Setter for rows per page
+  sortBy: SortByMaster;
+  sortType: SortType;
+  onSort: (sortBy: SortByMaster) => void; // Function to handle sorting
+}
 
-const PopularProducts = () => {
-  const ProductTableData: any[] = [
-    {
-      img: product1,
-      name: "iPhone 13 pro max-Pacific Blue-128GB storage",
-      payment: "$180",
-      paymentstatus: "Partially paid",
-      process: 45,
-      processcolor: "bg-warning",
-      statuscolor: "secondary",
-      statustext: "Confirmed",
-    },
-    {
-      img: product2,
-      name: "Apple MacBook Pro 13 inch-M1-8/256GB-space",
-      payment: "$120",
-      paymentstatus: "Full paid",
-      process: 100,
-      processcolor: "bg-success",
-      statuscolor: "success",
-      statustext: "Confirmed",
-    },
-    {
-      img: product3,
-      name: "PlayStation 5 DualSense Wireless Controller",
-      payment: "$120",
-      paymentstatus: "Cancelled",
-      process: 100,
-      processcolor: "bg-error",
-      statuscolor: "error",
-      statustext: "Cancelled",
-    },
-    {
-      img: product5,
-      name: "Amazon Basics Mesh, Mid-Back, Swivel Office",
-      payment: "$120",
-      paymentstatus: "Partially paid",
-      process: 45,
-      processcolor: "bg-warning",
-      statuscolor: "secondary",
-      statustext: "Confirmed",
-    },
-    {
-      img: product4,
-      name: "Sony X85J 75 Inch Sony 4K Ultra HD LED Smart",
-      payment: "$120",
-      paymentstatus: "Full paid",
-      process: 100,
-      processcolor: "bg-success",
-      statuscolor: "success",
-      statustext: "Confirmed",
-    },
-  ];
+const PopularProducts = ({ 
+  data,
+  columns,
+  totalPages,
+  page,
+  rowsPerPage,
+  setPage,
+  setRowsPerPage,
+  sortBy,
+  sortType,
+  onSort, }: TableProps) => {
 
-  /*Table Action*/
-  const tableActionData = [
-    {
-      icon: "solar:add-circle-outline",
-      listtitle: "Add",
-    },
-    {
-      icon: "solar:pen-new-square-broken",
-      listtitle: "Edit",
-    },
-    {
-      icon: "solar:trash-bin-minimalistic-outline",
-      listtitle: "Delete",
-    },
-  ];
+  const formatCellValue = (value: any) => {
+    if (value instanceof Date) {
+      return value.toLocaleDateString(); // Format Date as string
+    }
+    return value?.toString(); // Convert other values to string if necessary
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reset to the first page on rows per page change
+  };
 
   return (
     <>
       <div className="relative w-full break-words">
         <div className="overflow-x-auto">
-          {ProductTableData.length ? (
-            <Table hoverable>
-              <Table.Head>
-                <Table.HeadCell className="p-6">Products</Table.HeadCell>
-                <Table.HeadCell>Payment</Table.HeadCell>
-                <Table.HeadCell>Status</Table.HeadCell>
-                <Table.HeadCell></Table.HeadCell>
-              </Table.Head>
-              <Table.Body className="divide-y divide-border dark:divide-darkborder ">
-                {ProductTableData.map((item, index) => (
-                  <Table.Row key={index}>
-                    <Table.Cell className="whitespace-nowrap ps-6">
-                      <div className="flex gap-3 items-center">
-                        <Image
-                          src={item.img}
-                          alt="icon"
-                          className="h-[60px] w-[60px] rounded-md"
-                        />
-                        <div className="truncat line-clamp-2 sm:text-wrap max-w-56">
-                          <h6 className="text-sm">{item.name}</h6>
+          {data?.length ? (
+            <>
+              <Table hoverable>
+                <Table.Head>
+                  {columns.map((column: TableColumnModel, colIndex) => (
+                    <Table.HeadCell key={colIndex} >
+                      {column.isSortable ? (
+                        <TableSortLabel
+                          active={sortBy === column.key} // Highlight if it's the sorted column
+                          direction={sortBy === column.key ? sortType : 'asc'} // Set sort direction
+                          onClick={() => onSort(column.key)} // Trigger sort when clicked
+                        >
+                          {column.value}
+                        </TableSortLabel>
+                      ) : (
+                        column.value
+                      )}
+                      {column?.child && (
+                        <div>
+                          {column.child.value}
                         </div>
-                      </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <h5 className="text-base text-wrap">
-                        {item.payment}
-                        <span className="text-dark opacity-70">
-                          <span className="mx-1">/</span>499
-                        </span>
-                      </h5>
-                      <div className="text-sm font-medium text-dark opacity-70 mb-2 text-wrap">
-                        {item.paymentstatus}
-                      </div>
-                      <div className="me-5">
-                        <Progress
-                          progress={item.process}
-                          color={`${item.processcolor}`}
-                          className={`${item.processcolor}`}
-                          size={"sm"}
-                        />
-                      </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Badge
-                        color={`light${item.statuscolor}`}
-                        className={`text-${item.statuscolor}`}
-                      >
-                        {item.statustext}
-                      </Badge>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Dropdown
-                        label=""
-                        dismissOnClick={false}
-                        renderTrigger={() => (
-                          <span className="h-9 w-9 flex justify-center items-center rounded-full hover:bg-lightprimary hover:text-primary cursor-pointer">
-                            <HiOutlineDotsVertical size={22} />
-                          </span>
-                        )}
-                      >
-                        {tableActionData.map((items, index) => (
-                          <Dropdown.Item key={index} className="flex gap-3">
-                            {" "}
-                            <Icon icon={`${items.icon}`} height={18} />
-                            <span>{items.listtitle}</span>
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
+                      )}
+                    </Table.HeadCell>
+
+                  ))}
+                </Table.Head>
+                <Table.Body className="divide-y divide-border dark:divide-darkborder">
+                  {data.map((item, index) => (
+                    <Table.Row key={index}>
+                      {columns.map((column: TableColumnModel, colIndex) => (
+                        <Table.Cell key={colIndex} className="whitespace-nowrap" style={{ width: '140px' }}>
+                          <div className="truncate line-clamp-2 sm:text-wrap max-w-56">
+                            <h6 className="text-sm opacity-80">{formatCellValue(item[column.key])}</h6> {/* Format values */}
+                            {column.child && (
+                              <h6 className="text-sm opacity-80">
+                                {item[column.child.key]}
+                              </h6>
+                            )}
+                          </div>
+                        </Table.Cell>
+                      ))}
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+              {/* Pagination Controls */}
+              <TablePagination
+                component="div"
+                count={totalPages}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[10, 25, 50]} // Options for rows per page
+              />
+            </>
           ) : (
             <NoDataFound />
           )}

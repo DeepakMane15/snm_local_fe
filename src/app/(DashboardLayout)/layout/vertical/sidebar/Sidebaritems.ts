@@ -43,6 +43,12 @@ const SidebarContent: MenuItem[] = [
         url: "/ui/typography",
       },
       {
+        name: "Sadhsangat",
+        icon: "solar:bedside-table-3-linear",
+        id: uniqueId(),
+        url: "/ui/sadhsangat",
+      },
+      {
         name: "Sewadal",
         icon: "solar:bedside-table-3-linear",
         id: uniqueId(),

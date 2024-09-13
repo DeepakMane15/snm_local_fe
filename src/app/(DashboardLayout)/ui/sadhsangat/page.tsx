@@ -8,17 +8,19 @@ import { useQuery } from "react-query";
 import { fetchFilters } from "@/api/filterApi";
 import { GetSadhsangatResultModel, SadhsangatDataModel } from "@/app/constants/models/sadhsangatDataModel";
 import { fetchSewadals } from "@/api/sewadalApi";
+import { fetchSadhsangat } from "@/api/sadhsangatApi";
 
-const Sewadal = () => {
+const Sadhsangat = () => {
     const [filters, setFilters] = useState<FilterModel[]>([]);
     const [unitId, setUnitId] = useState<number>(0);
-    const [sewadalData, setSewadalData] = useState<SadhsangatDataModel[]>([]);
+    const [sadhsangatData, setSadhsangatData] = useState<SadhsangatDataModel[]>([]);
     const [page, setPage] = useState(0); // Page starts from 0
     const [rowsPerPage, setRowsPerPage] = useState(10); // Default rows per page
     const [totalRecords, setTotalRecords] = useState(0); // Track total records from the API
     const [searchString, setSearchString] = useState<string>(''); // Default rows per page
     const [sortBy, setSortBy] = useState<SortByMaster>(SortByMaster.NAME);
     const [sortType, setSortType] = useState<SortType>(SortType.ASC);
+
 
     // Fetch filter options
     const { data: filterData, isLoading: isLoadingFilters, error: filterError } = useQuery<FilterOption[], Error>(
@@ -32,31 +34,31 @@ const Sewadal = () => {
     );
 
     // Fetch Sewadal data
-    const { data: sadhsangatDataResult, isLoading: isLoadingSewadal, error: sewadalError } = useQuery<GetSadhsangatResultModel, Error>(
-        ['sewadals', unitId, page, rowsPerPage, sortBy, sortType, searchString],  // Use an array with the query key and unitId
-        () => fetchSewadals(unitId, page, rowsPerPage, sortBy, sortType, searchString),
-        {
-            enabled: unitId !== null,  // Only fetch when unitId is set
-            staleTime: 0,  // Set to 0 to always refetch when keys change
-            keepPreviousData: true,  // Helps with pagination transitions
-            refetchOnWindowFocus: false,  // Disable refetching on window focus
-            onSuccess: (data) => {
-                setSewadalData(data.data);
-                setTotalRecords(data.count); // Update total records for pagination
-            },
-        }
-    );
+    const { data: sadhsangatDataResult, isLoading: isLoadingSadhsangat, error: sadhsangatError } = useQuery<GetSadhsangatResultModel
+        , Error>(
+            ['sadhsangat', unitId, page, rowsPerPage, sortBy, sortType, searchString],
+            () => fetchSadhsangat(unitId, page + 1, rowsPerPage, sortBy, sortType, searchString),
+            {
+                enabled: unitId !== null,  // Only fetch when unitId is set
+                staleTime: 0,  // Set to 0 to always refetch when keys change
+                keepPreviousData: true,  // Helps with pagination transitions
+                refetchOnWindowFocus: false,  // Disable refetching on window focus
+                onSuccess: (data) => {
+                    setSadhsangatData(data.data);
+                    setTotalRecords(data.count); // Update total records for pagination
+                },
+            }
+        );
 
     // Define table columns
     const columns: TableColumnModel[] = [
-        { key: 'name', isSortable: true, value: 'Name' },
-        { key: 'personalNo', isSortable: false, value: 'Personal No', child: { key: 'sewadalNo', isSortable: false, value: 'Sewadal No' } },
-        { key: 'contactNo', isSortable: false, value: 'Contact No' },
-        { key: 'area', isSortable: false, value: 'Area' },
-        { key: 'age', isSortable: false, value: 'Age' },
-        { key: 'bloodGroup', isSortable: false, value: 'Blood Group' },
-        { key: 'qualification', isSortable: false, value: 'Qualification' },
-        { key: 'occupation', isSortable: false, value: 'Occupation' },
+        { key: 'name', value: 'Name', isSortable: true },
+        { key: 'contactNo', value: 'Contact No', isSortable: true },
+        { key: 'area', value: 'Area', isSortable: true },
+        { key: 'age', value: 'Age', isSortable: true },
+        { key: 'bloodGroup', value: 'Blood Group', isSortable: true },
+        { key: 'qualification', value: 'Qualification', isSortable: true },
+        { key: 'occupation', value: 'Occupation', isSortable: true },
     ];
 
     // After successful API call, initialize the filter data
@@ -123,9 +125,9 @@ const Sewadal = () => {
             )}
             <div className="mt-3">
                 {/* Conditionally render the PopularProducts table when data is available */}
-                {!isLoadingSewadal && sewadalData ? (
+                {!isLoadingSadhsangat && sadhsangatData ? (
                     <PopularProducts
-                        data={sewadalData}
+                        data={sadhsangatData}
                         columns={columns}
                         totalPages={totalRecords}
                         page={page}
@@ -136,11 +138,11 @@ const Sewadal = () => {
                         sortType={sortType}
                         onSort={handleSort} />
                 ) : (
-                    <p>Loading Sewadal data...</p>  // Show a loading message while the data is being fetched
+                    <p>Loading Sadhsangat data...</p>  // Show a loading message while the data is being fetched
                 )}
             </div>
         </div>
     );
 };
 
-export default Sewadal;
+export default Sadhsangat;
