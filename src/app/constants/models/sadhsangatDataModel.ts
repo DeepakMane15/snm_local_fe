@@ -25,43 +25,68 @@ export class GetSadhsangatResultModel {
   public count: number = 0;
 }
 
-export interface MemberFormModel {
-  name: string;
-  gender: string;
-  dob: string;
-  qualification: string;
-  occupation: string;
-  dateOfGyan: string;
-  bloodGroup: string;
-  isSewadal: boolean;
-  personalNo?: string;
-  sewadalNo?: string;
-  recruitmentDate?: string;
-  badgeBeltDate?: string;
+export class MemberFormModel {
+  public name: string;
+  public contactNo: string;
+  public gender: number;
+  public dob: string;
+  public qualification: string;
+  public occupation: string;
+  public dateOfGyan: string;
+  public bloodGroup: string;
+  public isSewadal: boolean;
+  public personalNo?: string;
+  public sewadalNo?: string;
+  public recruitmentDate?: string;
+  public badgeBeltDate?: string;
+
+  constructor() {
+    this.name = "";
+    this.contactNo = "";
+    this.gender = 1;
+    this.dob = "";
+    this.qualification = "";
+    this.occupation = "";
+    this.dateOfGyan = "";
+    this.bloodGroup = "";
+    this.isSewadal = false;
+  }
 }
 
-export interface SadhSangatAddFormModel {
-  name: string;
-  unitNo:number;
-  area: string;
-  address: string;
-  pincode: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  qualification: string;
-  occupation: string;
-  dateOfGyan: string;
-  bloodGroup: string;
-  isSewadal: boolean;
-  personalNo?: string;
-  sewadalNo?: string;
-  recruitmentDate?: string;
-  badgeBeltDate?: string;
-  password1: string;
-  country: string;
-  state: string;
-  city: string;
-  members: MemberFormModel[];
-}
+export class SadhSangatAddFormModel {
+  public name: string;
+  public unitNo: number;
+  public area: string;
+  public address: string;
+  public pincode: string;
+  public contactNo: string;
+  public gender: number;
+  public dob: string;
+  public qualification: string;
+  public occupation: string;
+  public dateOfGyan: string;
+  public bloodGroup: string;
+  public isSewadal: boolean;
+  public personalNo?: string;
+  public sewadalNo?: string;
+  public recruitmentDate?: string;
+  public badgeBeltDate?: string;
+  public members: MemberFormModel[];
 
+  constructor() {
+    this.name = "";
+    this.unitNo = 0;
+    this.area = "";
+    this.address = "";
+    this.pincode = "";
+    this.contactNo = "";
+    this.gender = 1;
+    this.dob = "";
+    this.qualification = "";
+    this.occupation = "";
+    this.dateOfGyan = "";
+    this.bloodGroup = "";
+    this.isSewadal = false;
+    this.members = [new MemberFormModel()];
+  }
+}

@@ -3,10 +3,13 @@ import { Button, Label, Select, TextInput, Checkbox } from "flowbite-react";
 import React, { useState, useEffect } from "react";
 import { Stepper, Step, StepLabel, Box } from "@mui/material";
 import { MdDeleteForever } from "react-icons/md";
-import { SadhSangatAddFormModel } from "@/app/constants/models/sadhsangatDataModel";
+import { MemberFormModel, SadhSangatAddFormModel } from "@/app/constants/models/sadhsangatDataModel";
 import { useMutation } from "react-query";
 import { submitForm } from "@/api/sadhsangatApi";
-
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs, { Dayjs } from 'dayjs';
 // Form field configuration for multiple steps
 const formSteps = [
     [
@@ -20,7 +23,8 @@ const formSteps = [
         { id: "qualification", label: "Qualification", type: "text", placeholder: "MA", required: true },
         { id: "occupation", label: "Occupation", type: "text", placeholder: "Service", required: true },
         { id: "dateOfGyan", label: "Date Of Gyan", type: "date", required: true },
-        { id: "bloodGroup", label: "Blood Group", type: "select", options: [{ key: "A+", value: "A+" },
+        {
+            id: "bloodGroup", label: "Blood Group", type: "select", options: [{ key: "A+", value: "A+" },
             { key: "A-", value: "A-" },
             { key: "B+", value: "B+" },
             { key: "B-", value: "B-" },
@@ -28,7 +32,8 @@ const formSteps = [
             { key: "AB-", value: "AB-" },
             { key: "O+", value: "O+" },
             { key: "O-", value: "O-" },
-            { key: "None", value: "None" }], required: true },
+            { key: "None", value: "None" }], required: true
+        },
         { id: "isSewadal", label: "Is Sewadal", type: "checkbox", default: false },
     ],
     [
@@ -59,36 +64,7 @@ const stepsLabels = ["HOF Info", "Members Info", "Preview"];
 
 const FormComponent = () => {
     const [step, setStep] = useState(0); // Current step in the form
-    const [formData, setFormData] = useState<SadhSangatAddFormModel>({
-        name: "Deepak",
-        area: "Thane",
-        address: "Thane",
-        pincode: "400604",
-        unitNo: 1,
-        contactNo: "9898989898",
-        gender: "Male",
-        dob: "15-05-2001",
-        qualification: "BE",
-        occupation: "Service",
-        dateOfGyan: "12-09-2023",
-        bloodGroup: "B+",
-        isSewadal: false,
-        personalNo: "",
-        sewadalNo: "",
-        recruitmentDate: "",
-        badgeBeltDate: "",
-        password1: "",
-        country: "",
-        state: "",
-        city: "",
-        members: [{
-            name: "",unitNo: 1, contactNo: "9898989898", gender: "", dob: "", qualification: "", occupation: "", dateOfGyan: "", bloodGroup: "", isSewadal: false,
-            personalNo: "",
-            sewadalNo: "",
-            recruitmentDate: "",
-            badgeBeltDate: "",
-        }] // Initialize with one member
-    });
+    const [formData, setFormData] = useState<SadhSangatAddFormModel>(new SadhSangatAddFormModel());
     const [errors, setErrors] = useState<any>({}); // Track errors for validation
     const [isStepValid, setIsStepValid] = useState(false); // To check if the step is valid
     const [touchedFields, setTouchedFields] = useState<any>({}); // Track which fields have been touched
@@ -96,7 +72,11 @@ const FormComponent = () => {
     const mutation = useMutation({
         mutationFn: submitForm,
         onSuccess: (data) => {
-            console.log("Form submitted successfully:", data);
+            resetForm();
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth" // Optional: Add smooth scrolling
+            });
             // Optionally reset the form or navigate
         },
         onError: (error: any) => {
@@ -126,7 +106,7 @@ const FormComponent = () => {
         }));
     };
 
-    const handleMemberChange = (index: number, id: number, e) => {
+    const handleMemberChange = (index, id, e) => {
         const { value, type } = e.target;
         const newMembers = [...formData.members];
         newMembers[index] = {
@@ -157,12 +137,7 @@ const FormComponent = () => {
             ...prevData,
             members: [
                 ...prevData.members,
-                {
-                    name: "", unitNo: 1, contactNo: "9898989898", gender: "", dob: "", qualification: "", occupation: "", dateOfGyan: "", bloodGroup: "", isSewadal: false, personalNo: "",
-                    sewadalNo: "",
-                    recruitmentDate: "",
-                    badgeBeltDate: "",
-                }
+                new MemberFormModel()
             ],
         }));
     };
@@ -238,7 +213,7 @@ const FormComponent = () => {
     const handleSubmit = () => {
         const isValid = validateStep();
         if (isValid) {
-            
+
             const formattedFormData = {
                 ...formData,
                 dateOfGyan: convertDateFormat(formData.dateOfGyan),
@@ -252,18 +227,28 @@ const FormComponent = () => {
         }
     };
 
-   const formatMemberDates = (members: any[]): any[] => {
-    return members.map(member => ({
-        ...member,
-        dob: member.dob ? convertDateFormat(member.dob) : "",
-        dateOfGyan: member.dateOfGyan ? convertDateFormat(member.dateOfGyan) : "",
-        recruitmentDate: member.recruitmentDate ? convertDateFormat(member.recruitmentDate) : "",
-        badgeBeltDate: member.badgeBeltDate ? convertDateFormat(member.badgeBeltDate) : "",
-    }));
-};
+    const resetForm = () => {
+        setFormData(new SadhSangatAddFormModel());
+        setErrors({})
+        setTouchedFields({});
+        setStep(0);
+    }
+
+    const formatMemberDates = (members: any[]): any[] => {
+        return members.map(member => ({
+            ...member,
+            dob: member.dob ? convertDateFormat(member.dob) : "",
+            dateOfGyan: member.dateOfGyan ? convertDateFormat(member.dateOfGyan) : "",
+            recruitmentDate: member.recruitmentDate ? convertDateFormat(member.recruitmentDate) : "",
+            badgeBeltDate: member.badgeBeltDate ? convertDateFormat(member.badgeBeltDate) : "",
+        }));
+    };
 
     const convertDateFormat = (dateString: string): string => {
-        const [day, month, year] = dateString.split("-");
+        let d = new Date(dateString);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+        const day = String(d.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
 
@@ -446,7 +431,7 @@ const FormComponent = () => {
                                                             id="personalNo"
                                                             type="number"
                                                             value={member.personalNo}
-                                                            onChange={handleChange}
+                                                            onChange={(e) => handleMemberChange(index, 'personalNo', e)}
                                                             required
                                                             className={`form-control ${errors.personalNo ? "border-red-500" : ""}`}
                                                         />
@@ -464,7 +449,7 @@ const FormComponent = () => {
                                                             id="sewadalNo"
                                                             type="text"
                                                             value={member.sewadalNo}
-                                                            onChange={handleChange}
+                                                            onChange={(e) => handleMemberChange(index, 'sewadalNo', e)}
                                                             required
                                                             className={`form-control ${errors.sewadalNo ? "border-red-500" : ""}`}
                                                         />
@@ -482,7 +467,7 @@ const FormComponent = () => {
                                                             id="recruitmentDate"
                                                             type="date"
                                                             value={member.recruitmentDate}
-                                                            onChange={handleChange}
+                                                            onChange={(e) => handleMemberChange(index, 'recruitmentDate', e)}
                                                             required
                                                             className={`form-control ${errors.recruitmentDate ? "border-red-500" : ""}`}
                                                         />
@@ -500,7 +485,7 @@ const FormComponent = () => {
                                                             id="badgeBeltDate"
                                                             type="date"
                                                             value={member.badgeBeltDate}
-                                                            onChange={handleChange}
+                                                            onChange={(e) => handleMemberChange(index, 'badgeBeltDate', e)}
                                                             required
                                                             className={`form-control ${errors.badgeBeltDate ? "border-red-500" : ""}`}
                                                         />
