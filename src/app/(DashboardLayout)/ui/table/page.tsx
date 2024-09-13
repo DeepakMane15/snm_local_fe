@@ -7,9 +7,10 @@ import { SortByMaster, SortType, TableColumnModel } from "@/app/constants/AppEnu
 import TablePagination from "@mui/material/TablePagination";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { TableSortLabel } from "@mui/material";
+import { UnitsMasterDataModel } from "@/app/constants/models/unitsDataModel";
 
 interface TableProps {
-  data: SadhsangatDataModel[];
+  data: SadhsangatDataModel[] | UnitsMasterDataModel[];
   columns: TableColumnModel[];
   totalPages: number;
   page: number; // Current page number

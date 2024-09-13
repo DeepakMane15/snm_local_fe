@@ -14,9 +14,6 @@ interface FilterProps {
 }
 
 const Filter = ({ filters, searchPlaceholder: placeholder, onApply, onSearchApply }: FilterProps) => {
-    useEffect(() => {
-        console.log(filters);
-    }, [filters]);
 
     const [isOpen, setIsOpen] = useState(false);
     const [appliedFiltersCount, setAppliedFiltersCount] = useState(0);
@@ -99,14 +96,16 @@ const Filter = ({ filters, searchPlaceholder: placeholder, onApply, onSearchAppl
     return (
         <div className="relative">
             <div className="flex flex-row gap-4 items-center mb-2">
-                <button
-                    type="button"
-                    className="flex flex-row gap-1 items-center text-white bg-primary hover:bg-blue-800 focus:ring-4 rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none whitespace-nowrap"
-                    onClick={togglePanel}
-                >
-                    <span>Filters {appliedFiltersCount > 0 && `(${appliedFiltersCount})`}</span>
-                    {isOpen ? <FaCaretUp size={12} /> : <FaCaretDown size={12} />}
-                </button>
+                {filters && filters.length > 0 && (
+                    <button
+                        type="button"
+                        className="flex flex-row gap-1 items-center text-white bg-primary hover:bg-blue-800 focus:ring-4 rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none whitespace-nowrap"
+                        onClick={togglePanel}
+                    >
+                        <span>Filters {appliedFiltersCount > 0 && `(${appliedFiltersCount})`}</span>
+                        {isOpen ? <FaCaretUp size={12} /> : <FaCaretDown size={12} />}
+                    </button>
+                )}
 
                 <div className="relative w-full">
                     <input
@@ -148,53 +147,55 @@ const Filter = ({ filters, searchPlaceholder: placeholder, onApply, onSearchAppl
                     className="flex flex-row gap-1 items-center text-white bg-primary hover:bg-blue-800 focus:ring-4 rounded-md text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none whitespace-nowrap"
                     onClick={navigateToAdd}
                 >
-                    <IoAddCircleOutline size={22}/>
+                    <IoAddCircleOutline size={22} />
                     <span>
                         Add
                     </span>
                 </button>
             </div>
 
-            <div className={` transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px]' : 'max-h-0'} rounded-md`}>
-                <form className="w-full border border-gray-300 p-4 bg-white grid grid-cols-2 gap-4" onSubmit={handleApply}>
-                    {selectedFilters.map((filter) => (
-                        <div className="relative w-full" key={filter.label}>
-                            <Autocomplete
-                                disablePortal
-                                options={filter.options}
-                                value={filter.selectedData || null} // Ensure the field is controlled with the correct value
-                                onChange={(e, v) => handleInputChange(e, v, filter)}
-                                sx={{ width: '100%' }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label={filter.label + (filter.isMandatory ? ' *' : '')}
-                                        error={!!errors[filter.label]}
-                                        helperText={errors[filter.label] ? "This field is required" : ""}
-                                    />
-                                )}
-                            />
-                        </div>
-                    ))}
+            {filters && filters.length > 0 && (
+                <div className={` transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px]' : 'max-h-0'} rounded-md`}>
+                    <form className="w-full border border-gray-300 p-4 bg-white grid grid-cols-2 gap-4" onSubmit={handleApply}>
+                        {selectedFilters.map((filter) => (
+                            <div className="relative w-full" key={filter.label}>
+                                <Autocomplete
+                                    disablePortal
+                                    options={filter.options}
+                                    value={filter.selectedData || null} // Ensure the field is controlled with the correct value
+                                    onChange={(e, v) => handleInputChange(e, v, filter)}
+                                    sx={{ width: '100%' }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label={filter.label + (filter.isMandatory ? ' *' : '')}
+                                            error={!!errors[filter.label]}
+                                            helperText={errors[filter.label] ? "This field is required" : ""}
+                                        />
+                                    )}
+                                />
+                            </div>
+                        ))}
 
-                    {/* Buttons */}
-                    <div className="col-span-2 flex justify-end gap-4">
-                        <button
-                            type="button"
-                            className="text-gray-700 bg-gray-200 hover:bg-gray-300 font-medium rounded-md text-sm px-5 py-2"
-                            onClick={handleReset}
-                        >
-                            Reset
-                        </button>
-                        <button
-                            type="submit"
-                            className="text-white bg-primary hover:bg-blue-600 font-medium rounded-md text-sm px-5 py-2"
-                        >
-                            Apply
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        {/* Buttons */}
+                        <div className="col-span-2 flex justify-end gap-4">
+                            <button
+                                type="button"
+                                className="text-gray-700 bg-gray-200 hover:bg-gray-300 font-medium rounded-md text-sm px-5 py-2"
+                                onClick={handleReset}
+                            >
+                                Reset
+                            </button>
+                            <button
+                                type="submit"
+                                className="text-white bg-primary hover:bg-blue-600 font-medium rounded-md text-sm px-5 py-2"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
         </div>
     );
 };

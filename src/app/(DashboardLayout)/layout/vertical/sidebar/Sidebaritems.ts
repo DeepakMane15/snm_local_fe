@@ -55,6 +55,12 @@ const SidebarContent: MenuItem[] = [
         url: "/ui/sewadal",
       },
       {
+        name: "Units",
+        icon: "solar:bedside-table-3-linear",
+        id: uniqueId(),
+        url: "/ui/units",
+      },
+      {
         name: "Table",
         icon: "solar:bedside-table-3-linear",
         id: uniqueId(),
